@@ -11,13 +11,14 @@ from PIL import Image
 from PIL import ImageTk
 import _tkinter as tk
 import MPRecognition
+import Functions
 import numpy as np
 import math
 from threading import Thread
 
 class GestureVision:
     
-    def __init__(self,root,window,affirmation,model_data): ## Initialises all MP and CV variables and objects to be operated on
+    def __init__(self,root,window,affirmation,model_data,editor): ## Initialises all MP and CV variables and objects to be operated on
         
         self.frameCapture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         self.mpHands = mp.solutions.hands
@@ -39,6 +40,13 @@ class GestureVision:
         ## Optimisations ##
         self.runProcessing = 0
         
+        ## Editing ##
+        self.editor = editor
+        self.prevEdit = "none" # This is a variable that acts to inform the editing calls when an edit is finished in order to update the values contained within the Functions object so That the subsequent edit operates from those.
+       
+        self.cropMode = False
+        self.boolBuffer = ["none"]*5
+        
     def updateFrame(self):
         success, frame = self.frameCapture.read()
         if success:
@@ -50,28 +58,34 @@ class GestureVision:
             ## MPObject will be a globally defined MPRecognizer object declared within the main ui loop
 
 
-
-
             ######################################OPTIMISATIONS#################################################
             ## Comment out the if else chain to make the recognizer process every single frame
             ## Comment out gThread and comment back in the commented out line to run the old version. NOTE: You must change self.affirmation.config(text=MPRecognition to =self.gesture).
-
-            if(self.runProcessing == 0):
-                gThread = Thread(target = self.recognizer.recognizeGesture,args = [gestureFrame,results])
-                gThread.daemon = True
-                gThread.start()
-                #self.gesture = self.recognizer.recognizeGesture(gestureFrame,results)
-                self.runProcessing += 1
-            elif(self.runProcessing < 3):
-                self.runProcessing += 1
+            if(results.multi_hand_landmarks):
+                if(self.runProcessing == 0):
+                    gThread = Thread(target = self.recognizer.recognizeGesture,args = [gestureFrame,results])
+                    gThread.daemon = True
+                    gThread.start()
+                    #self.gesture = self.recognizer.recognizeGesture(gestureFrame,results)
+                    self.runProcessing += 1
+                elif(self.runProcessing < 3):
+                    self.runProcessing += 1
+                else:
+                    self.runProcessing = 0
             else:
-                self.runProcessing = 0
+                MPRecognition.gesture = "none"
 
             ##DEBUG##
-            self.affirmation.config(text=MPRecognition.gesture)
+            if(self.cropMode == False):
+                self.affirmation.config(text=MPRecognition.gesture)
+            else:
+                self.affirmation.config(text = "crop") # Crop mode indicator
             ##DEBUG##
 
            #######################################OPTIMISATIONS####################################################
+          
+
+            self.callFunction(MPRecognition.gesture,results)
             
         
             
@@ -92,8 +106,44 @@ class GestureVision:
         return
     
     def callFunction(self,gesture,results): ## This method will be called to check which function to call based on the contents of the buffer
-        return
-    
+
+        #print(MPRecognition.gesture)
+
+        if(gesture == "resize"):
+            if(self.cropMode == True):
+                self.editor.crop(results)
+                self.prevEdit = "cropsize"
+            
+            elif(self.cropMode == False):
+                self.editor.resize(results)
+                self.prevEdit = "resize"
+        
+        elif(gesture == "translate" and self.cropMode == False):
+            self.editor.translate(results)
+            self.prevEdit = "translate"
+        
+        elif(gesture == "crop"):
+            
+            if(self.cropMode == False and self.prevEdit != "cropexit"): #If you didnt just exit crop
+                self.cropMode = True
+                self.prevEdit = "cropenter"
+            
+            elif(self.cropMode == True and self.prevEdit != "cropenter"): # You were in crop mode but you didnt just literally enter into it. Will need to change how this behaves when gestures other than resize are given
+                print("EXITING")
+                self.cropMode = False
+                self.prevEdit = "cropexit"
+
+        elif(gesture == "rotate" and self.cropMode == False):
+            self.editor.rotate(results)
+            self.prevEdit = "rotate"
+            
+        
+        elif(self.prevEdit != "none"):
+            self.editor.setStart()
+            #self.prevEdit = "none"
+            
+
+
     def displayGesture(self): ## Method to display affirmative gesture feedback (Similar to what is currently under DEBUG)
         return
         

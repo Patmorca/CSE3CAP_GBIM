@@ -4,9 +4,8 @@ import FrameLoop
 import Functions
 import Style
 import tkinter as tk
-from PIL import Image, ImageTk
-from tkinter import filedialog
-
+from PIL import Image
+from PIL import ImageTk
 
 
 
@@ -23,18 +22,18 @@ def startCamera():
 
 
 # Minimum size of window
-min_width = 320
-min_height = 320
+#min_width = 320
+#min_height = 320
 
 #max size of window
-#max_width = 1920
-#max_height = 1080
+max_width = 1280
+max_height = 720
 
 uiRoot = tk.Tk()
 uiRoot.title("Gesture Based Image Manipulation")
 uiRoot.geometry("1280x720")
-uiRoot.minsize(min_width, min_height)
-#uiRoot.maxsize(max_width, max_height)
+uiRoot.minsize(max_width, max_height)
+uiRoot.maxsize(max_width, max_height)
 uiRoot.configure(background=Style.workspaceBackground)
 uiRoot.rowconfigure(0, weight = 3)
 uiRoot.rowconfigure(1, weight = 1)
@@ -45,6 +44,12 @@ uiRoot.columnconfigure(2, weight = 1)
 
 uiRenderFrame = tk.Canvas(master=uiRoot, bg= Style.workspaceBackground)
 uiRenderFrame.grid(column=0,columnspan= 3, row=0, ipadx=1280, ipady=100)
+
+## Import image
+image = Image.open(r"C:/Users/Patrick/Desktop/DEMO/CSE3CAP_GBIM-master/cat.jpg")
+outImage = ImageTk.PhotoImage(image=image)
+editingImage = uiRenderFrame.create_image(0,0,anchor='center',image = outImage)
+## End Import Image
 
 
 uiMasterFrame = tk.Frame(master=uiRoot, bg= Style.workspaceBackground)
@@ -99,28 +104,6 @@ uiPreimportOpenFileBtn.grid(column=3, row=0, sticky=tk.SW, ipadx=30, ipady=30)
 
 ## Pre import UI ##
 
-def open_image():
-    file_path = filedialog.askopenfilename(
-        filetypes=[("Image Files", "*.jpg;*.jpeg;*.png")],
-        title="Select an Image File"
-    )
-    
-    if file_path:
-        img = Image.open(file_path)
-
-        canvas_width = uiRenderFrame.winfo_width()
-        canvas_height = uiRenderFrame.winfo_height()
-
-        img = img.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
-        img_tk = ImageTk.PhotoImage(img)
-        
-        uiRenderFrame.delete("all")
-        uiRenderFrame.create_image(0, 0, anchor=tk.NW, image=img_tk)
-        uiRenderFrame.image = img_tk 
-
-uiPreimportOpenFileBtn = tk.Button(master=uiPreimportFrame, bg=Style.gestures, fg=Style.blackText, text="Open File", command=open_image)
-uiPreimportOpenFileBtn.grid(column=3, row=0, sticky=tk.SW, ipadx=30, ipady=30)
-
 ## Help UI #
 uiHelpFrame = tk.Frame(master=uiMenuFrame, bg=Style.popupBackground)
 uiHelpFrame.pack(side=tk.RIGHT, expand=False)
@@ -135,7 +118,6 @@ uiHelpBtn.grid(column=0, row=1, sticky=tk.SW, ipadx=30, ipady=20)
 
 uiDeviceCamera = tk.Label(master=uiMasterFrame,bg= Style.popupBackground)
 uiDeviceCamera.grid(column=3, row=0, rowspan= 2, sticky=tk.EW)
-#uiDeviceCamera.place(relx=1.0,rely=1.0,x=0,y=0,anchor='se')
 
 uiMasterFrame.grid_forget()
 
@@ -144,7 +126,8 @@ model_path = 'gesture_recognizer.task'
 with open(model_path,'rb') as file:
     model_data = file.read()
 
-looper = FrameLoop.GestureVision(uiRoot,uiDeviceCamera,uiDetectedGesture,model_data) ##instantiates gesturevision object (frameloop), passes references to ui root and device camera widget
+editor = Functions.editFunctions(outImage,editingImage,uiRenderFrame)
+looper = FrameLoop.GestureVision(uiRoot,uiDeviceCamera,uiDetectedGesture,model_data,editor) ##instantiates gesturevision object (frameloop), passes references to ui root and device camera widget
 # functions = Functions.editFunctions(reference to image, reference to canvas etc.)
 
 ## TEST MATERIAL ##

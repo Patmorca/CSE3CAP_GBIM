@@ -17,3 +17,117 @@
 ##
 ##
 ##
+from PIL import ImageTk
+from PIL import Image
+import math
+import numpy as np
+from cv2 import readOpticalFlow, resize
+
+class editFunctions:
+    def __init__(self, image:ImageTk,canvasImage,canvas):
+       
+        self.image: Image = ImageTk.getimage(image)
+        self.canvas = canvas
+        self.canvasImage = canvasImage
+
+        self.startWidth = self.image.width
+        self.startHeight = self.image.height
+        self.startPos = canvas.coords(self.canvasImage)
+        self.startRot = 0
+        
+        self.updateWidth = self.startWidth
+        self.updateHeight = self.startHeight
+        self.updateRot = self.startRot
+        self.startResults = None
+        
+
+    def resize(self,results):
+        if(self.startResults == None):
+            self.startResults = results
+        
+        startPoint = self.startResults.multi_hand_landmarks[0].landmark[8]
+        if(results.multi_hand_landmarks != None):
+            h1Landmarks = results.multi_hand_landmarks[0]
+            h1Point = h1Landmarks.landmark[8]
+        
+        
+            distance = math.sqrt((startPoint.x - h1Point.x)**2 + (startPoint.y - h1Point.y)**2) ## Doesnt Like Crossing over the centrepoint - just scales positive again
+            print(distance)
+            scaler = distance + 1
+            
+            if((h1Point.x < startPoint.x and h1Point.y < startPoint.y) or (h1Point.x<startPoint.x and h1Point.y > startPoint.y)): # I.e if you are in the left hand quadrants when you divide from the point, you are shrinking
+                scaler = 1/scaler
+        
+            resizeWidth = self.startWidth * scaler
+            resizeHeight = self.startHeight * scaler
+            
+            self.updateWidth = resizeWidth
+            self.updateHeight = resizeHeight
+            
+            
+            resizedImage = self.image.resize((math.floor(resizeWidth),math.floor(resizeHeight)),Image.Resampling.LANCZOS)
+            resizedOut = ImageTk.PhotoImage(resizedImage)
+            self.canvas.itemconfig(self.canvasImage,image=resizedOut)
+            self.canvas.imgref = resizedOut
+           
+    
+    def translate(self,results):
+        if(self.startResults == None):
+            self.startResults = results
+        
+        startPoint = self.startResults.multi_hand_landmarks[0].landmark[8]
+        if(results.multi_hand_landmarks != None):
+            
+            h1Landmarks = results.multi_hand_landmarks[0]
+            h1Point1 = h1Landmarks.landmark[8]
+            self.canvas.moveto(self.canvasImage,h1Point1.x*1280,h1Point1.y*720)
+            
+        return
+    
+    def crop(self,results):
+        print("cropping")
+        return
+        
+
+
+    def rotate(self,results):
+        if(self.startResults == None):
+            self.startResults = results        
+
+        startPoint = self.startResults.multi_hand_landmarks[0].landmark[8]
+        print(self.startRot)
+        if(results.multi_hand_landmarks != None):
+            
+            h1Landmarks = results.multi_hand_landmarks[0]
+            h1Point1 = h1Landmarks.landmark[5]
+            h1Point2 = h1Landmarks.landmark[8]
+            
+            
+            rotPoint = [h1Point1.x,h1Point1.y]
+            pivPoint = [h1Point2.x,h1Point2.y]
+            
+
+            rotVec = np.subtract(rotPoint,pivPoint)
+            rotation = math.atan2(rotVec[1],rotVec[0])
+            print(-(math.degrees(rotation)-90))
+
+            outRot = -(math.degrees(rotation)-90)
+            self.updateRot = self.startRot + outRot
+            
+
+
+            rotatedImage = self.image.rotate(self.startRot + outRot)
+            rotatedOut = ImageTk.PhotoImage(rotatedImage)
+            self.canvas.itemconfig(self.canvasImage,image=rotatedOut)
+            self.canvas.imgred = rotatedOut
+        return
+    
+        
+
+    def setStart(self):
+        self.startResults = None # Resetting start position of gesture coordinates
+        self.startWidth = self.updateWidth
+        self.startHeight = self.updateHeight
+        self.startRot = self.updateRot
+
+        

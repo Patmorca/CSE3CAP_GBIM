@@ -52,6 +52,7 @@ class MPRecognizer:
             return outGesture
         
         except IndexError as e:
+
             return # We always seem to end up in here for no reason? It doesnt particularly affect the program in any way I just don't know why it's happening.
             
 ## This bit calculates the confidence value
@@ -114,8 +115,10 @@ class MPRecognizer:
                 elif(self.bufferWeighter('translate') > self.confidence):
                     if(pinkyDistance < 0.2 and thumbDistance < 0.3):
                         gesture = "translate"
-               
+                else:
+                    gesture = "none"
                     
            
             ### MULTI HANDDED GESTURES ###
+        #print(gesture)
         return gesture

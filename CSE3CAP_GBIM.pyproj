@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>CSE3CAP_GBIM</Name>
     <RootNamespace>CSE3CAP_GBIM</RootNamespace>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
