@@ -35,6 +35,24 @@ class Gesture(Enum):
             return gestureHelp[cls]
         def gesture_image(cls):
             gestureImage = {
+                    Gesture.ROTATE: "Resources\RotateStatic.png",
+                    Gesture.CROP: "Resources\CropStatic.png",
+                    Gesture.RESIZE: "Resources\ResizeStatic.png",
+                    Gesture.TRANSLATE :"Resources\TranslateStatic.png",
+                    Gesture.CONTRAST :"Resources\ContrastStatic.png",
+                    Gesture.BRIGHTNESS: "Resources\BrightnessStatic.png",
+                    Gesture.POINTER: "Resources\PointerStatic.png",
+                    Gesture.PEN: "Resources\PenStatic.png",
+                    Gesture.CLOSE: "Resources\BrightnessStatic.png",
+                    Gesture.SAVEFILE: "Resources\SaveStatic.png",
+                    Gesture.OPENFILE: "Resources\OpenStatic.png",
+                    Gesture.OPENHAND: "Resources\BrightnessStatic.png",
+                    Gesture.CLOSEDHAND: "Resources\BrightnessStatic.png",
+                    Gesture.HELP: "Resources\HelpStatic.png"
+            }
+            return gestureImage[cls]
+        def gesture_gif(cls):
+            gestureGif = {
                     Gesture.ROTATE: "Resources\Rotate.gif",
                     Gesture.CROP: "Resources\Crop.gif",
                     Gesture.RESIZE: "Resources\Resize.gif",
@@ -50,7 +68,7 @@ class Gesture(Enum):
                     Gesture.CLOSEDHAND: "Resources\Brightness.gif",
                     Gesture.HELP: "Resources\Help.gif"
             }
-            return gestureImage[cls]
+            return gestureGif[cls]
         def string_to_enum(string):
             string = string.replace(" ", "")
             string = string.upper()

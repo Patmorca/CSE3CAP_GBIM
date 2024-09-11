@@ -83,8 +83,8 @@ class HelpWindow(CTk.CTkToplevel):
     def set_help_image(self,gesture):
         # Get the Gesture Enum object from the string value
         enumGesture = Gesture.string_to_enum(gesture)
-        # Get the image name for the specific Gesture
-        help_image_path = Gesture.gesture_image(enumGesture)
+        # Get the gif path for the specific Gesture
+        help_image_path = Gesture.gesture_gif(enumGesture)
         # Load the image into the label        
         #ImageLoader(self.uiHelpImage, help_image_path,(320,220))
         self.uiHelpImage = GIFLabel(master=self.uiHelpImageFrame,image_path=help_image_path ,bg_color="transparent", text = "")
@@ -146,11 +146,11 @@ class ImageLoader:
 class ActionHistory(CTk.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.grid_columnconfigure(0, weight=1)    
+        self.grid_columnconfigure(0, weight=1) 
         self.label_list = []
         #current dir - probably should be global var
         self.current_dir = os.path.dirname(os.path.abspath(__file__))
-
+        
     def add_item(self, item, image=None):   
         # create image
         image = CTk.CTkImage(Image.open(os.path.join(self.current_dir, image)))
@@ -319,11 +319,11 @@ class App(CTk.CTk):
 
 
         # Action history Gui
-        uiHistoryFrame = CTk.CTkFrame(master=uiMenuFrame, fg_color=Style.popupBackground, width=100, height=100)
+        uiHistoryFrame = CTk.CTkFrame(master=uiMenuFrame, fg_color=Style.popupBackground, width=100, height=60)
         uiHistoryFrame.pack(side=CTk.LEFT, expand=False)
 
-        uiActionHistory = ActionHistory(master=uiHistoryFrame, width=200, height=5,label_text="Action History", corner_radius=0, fg_color=Style.popupBackground,border_width= 3, border_color= Style.windowBorder)
-        uiActionHistory.grid(row=0, column=0, padx=5, pady=5)
+        uiActionHistory = ActionHistory(master=uiHistoryFrame, width=200, height=30, label_text="Action History", corner_radius=0, fg_color=Style.popupBackground,border_width= 3, border_color= Style.windowBorder)
+        uiActionHistory.grid(row=0, column=0, padx=0, pady=0)
 
         # Function list
 
