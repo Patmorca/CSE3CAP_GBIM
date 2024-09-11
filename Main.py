@@ -148,10 +148,17 @@ class ActionHistory(CTk.CTkScrollableFrame):
         super().__init__(master, **kwargs)
         self.grid_columnconfigure(0, weight=1)    
         self.label_list = []
+        #current dir - probably should be global var
+        self.current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    def add_item(self, item, image=None):
+    def add_item(self, item, image=None):   
+        # create image
+        image = CTk.CTkImage(Image.open(os.path.join(self.current_dir, image)))
+        # create label with text and image
         label = CTk.CTkLabel(self, text=item, image=image, compound="left", padx=5, anchor="w")
+        # add to grid
         label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
+        # add to the label list - list of previous gestures
         self.label_list.append(label)
 
     def remove_item(self, item):
@@ -183,8 +190,12 @@ class App(CTk.CTk):
             self.after(0, looper.updateFrame())
 
         def handle_gesture_changed(var, index, mode):
-            # Your code to adjust canvas size goes here
-                print("Gesture (detectedGestureString.get()) Changed: " + detectedGestureString.get()) 
+            # get the Gesture Enum for the string returned
+            enumGesture = Gesture.string_to_enum(detectedGestureString.get())
+            # Get the image path for the specific Gesture
+            image_path = Gesture.gesture_image(enumGesture)
+            # add the image and text to the action history
+            uiActionHistory.add_item(item = enumGesture.value, image=image_path)        
 
                 # Minimum size of window
         min_width = 320
@@ -308,17 +319,11 @@ class App(CTk.CTk):
 
 
         # Action history Gui
-
         uiHistoryFrame = CTk.CTkFrame(master=uiMenuFrame, fg_color=Style.popupBackground, width=100, height=100)
         uiHistoryFrame.pack(side=CTk.LEFT, expand=False)
 
         uiActionHistory = ActionHistory(master=uiHistoryFrame, width=200, height=5,label_text="Action History", corner_radius=0, fg_color=Style.popupBackground,border_width= 3, border_color= Style.windowBorder)
         uiActionHistory.grid(row=0, column=0, padx=5, pady=5)
-        
-        # add test item to the Action history
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        image = CTk.CTkImage(Image.open(os.path.join(current_dir, "Ui_Images", "HelpOr.jpg")))
-        uiActionHistory.add_item(item = "test", image=image)
 
         # Function list
 
