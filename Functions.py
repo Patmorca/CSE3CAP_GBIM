@@ -1,5 +1,3 @@
-from pickle import INT
-from turtle import width
 from PIL import ImageTk, Image, ImageOps, ImageTk, ImageEnhance
 import math
 import numpy as np
@@ -479,25 +477,26 @@ class editFunctions:
         breakbool = False
         
         ## Find the earliest vertical occurence of a non-alpha pixel
-        for x in range(0,self.start_width):
-            for y in range(0, self.start_height):
-                if(arrayImage[x, y][3] != 0): ## Approaching from the left
+        for x in range(0,self.start_width-1):
+            for y in range(0, self.start_height-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the top
                     print("Width Distance:")
                     print(cropCoord)
                     breakbool  = True
                     break
+            
             cropCoord += 1
             if(breakbool):
                 break
               
         breakbool = False
-        heightCropAmount = cropCoord
+        topCropAmount = cropCoord
         cropCoord = 0        
 
         ## Find the earliest horizontal occurence of a non-alpha pixel
-        for y in range(0,self.start_height):
-            for x in range(0,self.start_width):
-                if(arrayImage[x, y][3] != 0): ## Approaching from the top
+        for y in range(0,self.start_height-1):
+            for x in range(0,self.start_width-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the left
                     print("Height Distance:")
                     print(cropCoord)
                     breakbool = True
@@ -507,10 +506,42 @@ class editFunctions:
             if(breakbool):
                 break
 
-        widthCropAmount = cropCoord
+        breakbool = False
+        leftCropAmount = cropCoord
         cropCoord = 0
         
-        strippedImage = ImageOps.crop(self.image,(widthCropAmount,heightCropAmount,widthCropAmount,heightCropAmount))
+        for x in range(self.start_width-1,0,-1):
+            for y in range(self.start_height-1,0,-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the right
+                    print("Width Distance:")
+                    print(cropCoord)
+                    breakbool  = True
+                    break
+           
+            cropCoord += 1
+            if(breakbool):
+                break
+
+        breakbool = False
+        botCropAmount = cropCoord
+        cropCoord = 0
+        
+        for y in range(self.start_height-1,0,-1):
+            for x in range(self.start_width-1,0,-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the bottom
+                    print("Height Distance:")
+                    print(cropCoord)
+                    breakbool = True
+                    break
+
+            cropCoord += 1
+            if(breakbool):
+                break
+            
+        rightCropAmount = cropCoord
+
+        print((leftCropAmount,topCropAmount,rightCropAmount,botCropAmount))
+        strippedImage = ImageOps.crop(self.image,(leftCropAmount,topCropAmount,rightCropAmount,botCropAmount))
         return strippedImage
 
             
