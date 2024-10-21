@@ -377,14 +377,14 @@ class FunctionFrame(CTk.CTkFrame):
     ## FUNCTION: appends to UI element a list of GIFLables representative of functions
     def add_item(self, gesture):
         img = Gesture.gesture_image(gesture)
-        label = GIFLabel(master=self,root= self.root,image_path=img,gif_width=59, gif_height=50,is_Help=False,bg_color="transparent",text = "")
+        label = GIFLabel(master=self,root= self.root,image_path=img,gif_width=69, gif_height=60,is_Help=False,bg_color="transparent",text = "")
     
         if len(self.label_list) < 6:
-            label.grid(row=0 ,column=len(self.label_list), padx=(5,5), pady=(15,5), sticky="nsew")
+            label.grid(row=0 ,column=len(self.label_list), padx=(5,5), pady=(5,0), sticky="nsew")
         else:
-            label.grid(row=1 ,column=len(self.label_list) - 6, padx=(5,5), pady=(5,5), sticky="nsew")
+            label.grid(row=1 ,column=len(self.label_list) - 6, padx=(5,5), pady=(5,0), sticky="nsew")
         self.label_list.append(label) # from a list to FIFO
-        self.width += 120
+        self.width += 100
         self.configure(width = self.width)
 
              
