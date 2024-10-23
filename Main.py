@@ -18,9 +18,6 @@ class SaveWindow(CTk.CTkToplevel):
     also displays Height and Width infomation in text.
     """
     def __init__(self, master, *args, **kwargs):
-        """
-        sets all of the content inside of the Save Window
-        """
         self.master = master
         super().__init__(*args, **kwargs)
         # Window settings
@@ -86,11 +83,9 @@ class ImportOptionsPopUp(CTk.CTkToplevel):
     Top level window to display options avaiable
     - Pad the image to avoid rotational clipping
     - Overlay CV2 landmarks on webcam
+    sets all of the content inside of the import Options pop up
     """
     def __init__(self, master, *args, **kwargs):
-        """
-        sets all of the content inside of the import Options pop up
-        """
         self.master = master
         super().__init__(*args, **kwargs)
         self.geometry("300x110")
@@ -123,9 +118,6 @@ class HelpWindow(CTk.CTkToplevel):
     - text tool tip to help explain the gesture
     """
     def __init__(self, *args, **kwargs):
-        """
-        sets all of the content inside of the Help Window
-        """
         super().__init__(*args, **kwargs)
         # Window settings
         self.geometry("375x400")
@@ -215,29 +207,26 @@ class HelpWindow(CTk.CTkToplevel):
 class GIFLabel(CTk.CTkLabel):
     """
     A label that has the content of a GIF image. can animate on hover or loop continuosly.
+
+    :type master: The CTK root window
+    :param master: CTK.CTK        
+    :type root: The CTK root window
+    :param root: CTK.CTK
+    :type image_path: The file path of the GIF
+    :param image_path: string
+    :type gif_width: The width that you would like to set the GIF image to. Default is 320
+    :param gif_width: int    
+    :type gif_height: The height that you would like to set the GIF image to. Default is 220
+    :param gif_height: int
+    :type is_Help: is the gif for the Help Window? Default True
+    :param is_Help: Boolean
+    :type is_Open: is the gif the Open File label? Default False
+    :param is_Open: Boolean
+    :type is_Help_Button: is the gif the a help label in the function options? Default False
+    :param is_Help_Button: Boolean
     """
     def __init__(self, master, root, image_path, gif_width = 320, gif_height = 220, is_Help = True, is_Open = False, is_Help_Button = False,**kwargs):
-        """
-        sets all of the content inside of the GIF label
-
-        :type master: The CTK root window
-        :param master: CTK.CTK        
-        :type root: The CTK root window
-        :param root: CTK.CTK
-        :type image_path: The file path of the GIF
-        :param image_path: string
-        :type gif_width: The width that you would like to set the GIF image to. Default is 320
-        :param gif_width: int    
-        :type gif_height: The height that you would like to set the GIF image to. Default is 220
-        :param gif_height: int
-        :type is_Help: is the gif for the Help Window? Default True
-        :param is_Help: Boolean
-        :type is_Open: is the gif the Open File label? Default False
-        :param is_Open: Boolean
-        :type is_Help_Button: is the gif the a help label in the function options? Default False
-        :param is_Help_Button: Boolean
-        
-        """
+ 
         self.is_Help = is_Help
         self.is_Help_Button = is_Help_Button
         self.is_Open = is_Open
@@ -267,7 +256,7 @@ class GIFLabel(CTk.CTkLabel):
         # start animation
         gesture_text = Gesture.get_gesture_from_imagepath(Gesture, image_path)
         if(is_Help):
-            self._animate()
+            self.animate()
             return
         if(is_Open):
             self.bind("<Button-1>", lambda event:root.open_file(master = root))
@@ -277,15 +266,25 @@ class GIFLabel(CTk.CTkLabel):
             self.bind("<Button-1>", lambda event:root.open_help(root.uiActionHistory.get_last_gesture_text()))
         else:
             self.bind("<Button-1>", lambda event:root.open_help(gesture_text))
-        self.bind("<Enter>", lambda event:self._animate())
-        self.bind("<Leave>", lambda event:self._killAnimate())
+        self.bind("<Enter>", lambda event:self.animate())
+        self.bind("<Leave>", lambda event:self.killAnimate())
         self.configure(image=self._frames[1])
 
-    def _animate(self, idx=0):
+    def animate(self, idx=0) -> None:
+        """
+        Starts the animation of a Gif
+
+        :type idx: the number of the index in the Gif frame array. Default = 0
+        :param idx: int
+        """
         self.configure(image=self._frames[idx])
-        self.animate_Job = self.after(self._duration, self._animate, (idx+1)%len(self._frames))
+        self.animate_Job = self.after(self._duration, self.animate, (idx+1)%len(self._frames))
     
-    def _killAnimate(self):
+    def killAnimate(self) -> None:
+        """
+        Kills the animation. and sets the label image to the the frame of the Gif array at position 1 (clearer image)
+
+        """
         if self.animate_Job is not None:
             self.after_cancel(self.animate_Job)
             self.animate_Job = None
@@ -293,6 +292,21 @@ class GIFLabel(CTk.CTkLabel):
         
 # Class for the image labels
 class ImageLabel(CTk.CTkLabel):
+    """
+    A label that has the content of an image.
+
+
+    :type master: The CTK root window
+    :param master: CTK.CTK        
+    :type root: The CTK root window
+    :param root: CTK.CTK
+    :type image_path: The file path of the Image
+    :param image_path: string
+    :type image_size: The width and Height of image label. ie (200,130)
+    :param image_size: tuple   
+    :type is_gesture: is the image for the function list? - assigns on press open_help
+    :param is_gesture: Boolean
+    """
     def __init__(self, master, root, image_path, image_size, is_gesture = False, **kwargs):
         self.image_path = image_path
         self.image_size = image_size
@@ -303,7 +317,10 @@ class ImageLabel(CTk.CTkLabel):
 
     ## INPUT: Nil
     ## FUNCTION: loads image, performs tk operations and binds mouse 1 event
-    def load_image(self):
+    def load_image(self) -> None:
+        """
+        Loads image into the label
+        """
         current_dir = os.path.dirname(os.path.abspath(__file__))
         # Open the image file
         image = Image.open(os.path.join(current_dir, self.image_path))
@@ -319,7 +336,15 @@ class ImageLabel(CTk.CTkLabel):
 
 # Class for action History
 class ActionHistory(CTk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    """
+    Frame that holds a list and displays the last 3 gestures detected to the viewer. the list is also used 
+    in the function module in the Undo, Redo editor functions
+
+
+    :type master: The CTK root window
+    :param master: CTK.CTK        
+    """   
+    def __init__(self, master:CTk.CTk, **kwargs):
         super().__init__(master, **kwargs) 
         self.label_list = deque(maxlen = 3) ## Limiting to 5 History
         self.last_gesture = "none"
@@ -329,7 +354,10 @@ class ActionHistory(CTk.CTkFrame):
     
     ## INPUT: Nil
     ## FUNCTION: destroys label elements and pops from history after 3 items
-    def pop_item(self):
+    def pop_item(self) -> None:
+        """
+        destroys label elements and pops from history after 3 items
+        """
         self.label_list[2].destroy()
         self.label_list.pop()
         for label in self.label_list: # Shuffles everything back to allow for push to Queue
@@ -340,7 +368,15 @@ class ActionHistory(CTk.CTkFrame):
 
     ## INPUT: last gesture given
     ## FUNCTION: Appends last gesture to history, alternates UI colours, calls pop if list length == 3
-    def add_item(self, item, image=None):
+    def add_item(self, item, image:str=None) -> None:
+        """
+        Appends last gesture to history, alternates UI colours, calls pop if list length == 3
+
+        :type item: last gesture given as a string ie "rotate".
+        :param item: string
+        :type image: path of image to use in label list - not currently used - default = None.
+        :param image: string
+        """
         self.last_gesture = item
         if(self.colourCounter > 0): # Makes alternating colours
             bgColour = Style.popupBackground
@@ -357,14 +393,28 @@ class ActionHistory(CTk.CTkFrame):
         self.label_list.appendleft(label) # from a list to FIFO
     
     
-    def check_top(self):
+    def check_top(self) -> CTk.CTkLabel:
+        """
+        returns the gesture at the start of the list array
+        """
         return self.label_list[0]
     
-    def get_last_gesture_text(self):
+    def get_last_gesture_text(self) -> str:
+        """
+        returns the gesture at the start of the list array
+        """
         return self.last_gesture
 
 # Class for frame containing editing gifs
 class FunctionFrame(CTk.CTkFrame):
+    """
+    Class for frame containing gesture functions in gif format
+
+    :type master: The CTK root window
+    :param master: CTK.CTK 
+    :type root: The CTK root window
+    :param root: CTK.CTK 
+    """
     def __init__(self, master, root, **kwargs):
         self.root = root  
         super().__init__(master, **kwargs) 
@@ -375,7 +425,13 @@ class FunctionFrame(CTk.CTkFrame):
 
     ## INPUT: gesture
     ## FUNCTION: appends to UI element a list of GIFLables representative of functions
-    def add_item(self, gesture):
+    def add_item(self, gesture: Gesture) -> None:
+        """
+        Appends gestures as gifs to the frame.
+
+        :type gesture: Gesture to grab the Gif path from
+        :param gesture: Gesture
+        """
         img = Gesture.gesture_image(gesture)
         label = GIFLabel(master=self,root= self.root,image_path=img,gif_width=69, gif_height=60,is_Help=False,bg_color="transparent",text = "")
     
@@ -391,6 +447,9 @@ class FunctionFrame(CTk.CTkFrame):
     
 # Main App Class         
 class App(CTk.CTk):
+    """
+    Main app class, Holds everything and is the Root/Master window
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -515,19 +574,28 @@ class App(CTk.CTk):
 
     ## INPUT: Nil
     ## FUNCITON: Destroys start frame, rearranges UI   
-    def killStartFrame(self):
+    def killStartFrame(self) -> None:
+        """
+        Destroys start frame, rearranges UI     
+        """
         self.uiStartFrame.destroy()
         self.uiMasterFrame.grid(column=0, row=1, columnspan= 3, sticky=CTk.EW + CTk.S)
     
     ## INPUT: Nil
     ## FUNCITON: Calls start frame kill, begins .after() call for looper operation  
-    def startCamera(self):
+    def startCamera(self) -> None:
+        """
+        Calls start frame kill, begins .after() call for looper operation 
+        """
         self.killStartFrame()
         self.after(0, self.looper.updateFrame())
 
     ## INPUT: Nil
     ## FUNCTION: Opens file explorer dialog, generates editing canvas based on relative coordinates, resizes image. Sets editor and looper states. 
-    def open_image(self):
+    def open_image(self) -> None:
+        """
+        Opens file explorer dialog, generates editing canvas based on relative coordinates, resizes image. Sets editor and looper states. 
+        """
         global editor
 
         file_path = filedialog.askopenfilename(
@@ -571,7 +639,17 @@ class App(CTk.CTk):
 
     ## INPUT: image, canvas dimensions
     ## OUTPUT: Resized image based on current canvas dimensions. Also adds a padding box to avert rotation clipping if boolean checked.
-    def resizeImport(self,img,canvas_width,canvas_height): 
+    def resizeImport(self,img,canvas_width,canvas_height) -> Image: 
+        """
+        Returns resized image based on current canvas dimensions. Also adds a padding box to avert rotation clipping if boolean checked.
+        
+        :type img: Image the user selected to edit
+        :param img: ImageFile
+        :type canvas_width: Width of the Main window (root/master)
+        :param canvas_width: Int
+        :type canvas_height: Height of the Main Window (root/master) - the height of the MenuFrame
+        :param canvas_height: Int
+        """
 
         image_width, image_height = img.size
         resizerWidth = image_width/canvas_width
@@ -604,7 +682,10 @@ class App(CTk.CTk):
 
     ## INPUT: Event
     ## FUNCTION: Resizes canvas based on overall window size.
-    def handle_resize(self,event):
+    def handle_resize(self,event) -> None:
+            """
+            Resizes canvas based on overall window size.
+            """
             UIoffset = self.uiMenuFrame.winfo_height() + self.uiDetectedGesture.winfo_height()
             rfHeight = self.winfo_height() - UIoffset
             newWidth = self.winfo_width()
@@ -612,14 +693,26 @@ class App(CTk.CTk):
       
     ## Intermediary called by FrameLoop
     def open_file(self, master):
+        """
+        Opens the ImportOptionsPopUp
+        """
         self.toplevel_window = ImportOptionsPopUp(master= master)
     
     def save_window(self, master):
+        """
+        Opens the SaveWindow
+        """
         master.saveWindow = SaveWindow(master= master)
 
     ## INPUT: previous gesture (affirmation)
     ## FUNCTION: Creates appropriate help window
-    def open_help(self, affirmation):
+    def open_help(self, affirmation) -> None:
+        """
+        Creates appropriate help window
+        
+        :type affirmation: the string of the gesture that the help window will display ie "rotate"
+        :param affirmation: String
+        """
         if affirmation is None or affirmation == "none":
             affirmation = "help"          
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():      
