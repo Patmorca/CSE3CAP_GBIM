@@ -100,6 +100,8 @@ class GestureVision:
                     MPRecognition.gesture = "none" # This forces the gesture out of recognition so that it doesnt repeatedly open windows
                     self.recognizer.clear_Buffer()
                     self.root.open_file(master = self.root)
+                if(MPRecognition.gesture == "help"):
+                    self.callFunction(MPRecognition.gesture,results)
             
             elif(self.activated == True):
                 self.callFunction(MPRecognition.gesture,results)
@@ -177,6 +179,7 @@ class GestureVision:
                 print("EXITING")
                 self.prevEdit = "cropexit"
                 self.editor.destroyCropBounds(False)
+                self.editor.resetCropStage()
                 self.cropMode = False
 
         ## Generic Flow Control: Checks gesture if out of crop mode. If in crop mode, exits.

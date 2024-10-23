@@ -122,13 +122,13 @@ class editFunctions:
             self.start_results = results
 
         current_point = self._get_landmark(results, 8)
+        current_point.x = 1 - current_point.x # Inverting x axis
         cWidth = self.canvas.winfo_reqwidth()
         cHeight = self.canvas.winfo_reqheight()
         
         anchorOffsetX = self.start_height / 2 # Offsetting central anchor of image
         anchorOffsetY = self.start_width / 2
-
-        print(self.canvas.coords(self.canvas_image))
+        
         if current_point:
             self.canvas.moveto(self.canvas_image, current_point.x * cWidth - anchorOffsetX, current_point.y * cHeight - anchorOffsetY) 
 
@@ -244,19 +244,19 @@ class editFunctions:
                 self.applyCrop()
             self.canvas.delete(self.cropBounds)
            
-            self.cropOverlay = None
-            self.cropImage = None
-            self.canvas.image = self.image
+        self.cropOverlay = None
+        self.cropImage = None
+        self.canvas.image = self.image
            
-            self.cropStage = "none"
-            self.cropBounds = None
+        self.cropStage = "none"
+        self.cropBounds = None
             
-            self.cropDim = [0,0]
+        self.cropDim = [0,0]
             
-            self.cropBox_Sheight = None
-            self.cropBox_Swidth = None
-            self.cropBox_Uheight = None
-            self.cropBox_Uwidth = None
+        self.cropBox_Sheight = None
+        self.cropBox_Swidth = None
+        self.cropBox_Uheight = None
+        self.cropBox_Uwidth = None
     
     ## INPUT: Nil
     ## FUNCTION: Resets crop stage
@@ -395,16 +395,6 @@ class editFunctions:
             self.update_image = contrasted_image
             self.canvas.itemconfig(self.canvas_image, image=contrasted_out)
             self.canvas.imgref = contrasted_out
-            
-    ## INPUT: Nil
-    ## FUNCTION: Saves Image
-    def save_file(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                             filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
-        if file_path:
-            self.image.save(file_path)
-        else:
-            print("not a valid file path to save image")
 
     ## Undo and redo usurp set_start as a function, and perform the resetting of variables by themselves to ensure continuity
 
@@ -472,6 +462,96 @@ class editFunctions:
         self.penHold = None
         self.penFrameCounter = 0
         
+    ## Input: Nil
+    ## FUNCTION: Returns image for save preview
     def return_image(self):
-        return self.image
+        outputImage = self.stripAlpha()
+        return outputImage
+    
+    ## Input: Nil
+    ## FUNCTION: Returns alpha-stripped image to remove padding for saving
+    def stripAlpha(self):
+        initial = self.image
+        arrayImage = np.asarray(initial)
+        cropCoord = 0
+        breakbool = False
         
+        ## Find the earliest vertical occurence of a non-alpha pixel
+        for x in range(0,self.start_width-1):
+            for y in range(0, self.start_height-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the top
+                    print("Width Distance:")
+                    print(cropCoord)
+                    breakbool  = True
+                    break
+            
+            cropCoord += 1
+            if(breakbool):
+                break
+              
+        breakbool = False
+        topCropAmount = cropCoord
+        cropCoord = 0        
+
+        ## Find the earliest horizontal occurence of a non-alpha pixel
+        for y in range(0,self.start_height-1):
+            for x in range(0,self.start_width-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the left
+                    print("Height Distance:")
+                    print(cropCoord)
+                    breakbool = True
+                    break
+
+            cropCoord += 1
+            if(breakbool):
+                break
+
+        breakbool = False
+        leftCropAmount = cropCoord
+        cropCoord = 0
+        
+        for x in range(self.start_width-1,0,-1):
+            for y in range(self.start_height-1,0,-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the right
+                    print("Width Distance:")
+                    print(cropCoord)
+                    breakbool  = True
+                    break
+           
+            cropCoord += 1
+            if(breakbool):
+                break
+
+        breakbool = False
+        botCropAmount = cropCoord
+        cropCoord = 0
+        
+        for y in range(self.start_height-1,0,-1):
+            for x in range(self.start_width-1,0,-1):
+                if(arrayImage[x, y][3] != 0): ## Approaching from the bottom
+                    print("Height Distance:")
+                    print(cropCoord)
+                    breakbool = True
+                    break
+
+            cropCoord += 1
+            if(breakbool):
+                break
+            
+        rightCropAmount = cropCoord
+
+        print((leftCropAmount,topCropAmount,rightCropAmount,botCropAmount))
+        strippedImage = ImageOps.crop(self.image,(leftCropAmount,topCropAmount,rightCropAmount,botCropAmount))
+        return strippedImage
+
+            
+    ## INPUT: Nil
+    ## FUNCTION: Saves Image
+    def save_file(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".png",
+                                             filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
+        if file_path:
+            outputImage = self.stripAlpha()
+            outputImage.save(file_path)
+        else:
+            print("not a valid file path to save image")
