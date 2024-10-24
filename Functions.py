@@ -136,13 +136,11 @@ class editFunctions:
     ## OUTPUT: Rotation value snapped to the nearest increment
     def snap(self,array,value):
         snapped = (np.abs(array-value)).argmin()
-        print(snapped)
         return array[snapped]
 
     ## INPUT: Results
     ## FUNCTION: Rotates the image based on the relative rotation of two landmarks. Updates references
     def rotate(self, results):
-
         if self.start_results is None:
             self.start_results = results
 
@@ -509,7 +507,7 @@ class editFunctions:
         leftCropAmount = cropCoord
         cropCoord = 0
         
-        for x in range(self.start_width-1,0,-1):
+        for x in range(self.start_width-2,0,-1):
             for y in range(self.start_height-1,0,-1):
                 if(arrayImage[x, y][3] != 0): ## Approaching from the right
                     print("Width Distance:")

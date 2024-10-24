@@ -104,7 +104,8 @@ class GestureVision:
                     self.callFunction(MPRecognition.gesture,results)
             
             elif(self.activated == True):
-                self.callFunction(MPRecognition.gesture,results)
+                if(MPRecognition.gesture != "none"):
+                    self.callFunction(MPRecognition.gesture,results)
                            
             resizedFrame = gestureFrame.resize((Style.cameraWidth,Style.cameraHeight),Image.Resampling.LANCZOS)
             displayFrame = CTk.CTkImage(resizedFrame, size= (Style.cameraWidth,Style.cameraHeight))
@@ -155,7 +156,7 @@ class GestureVision:
     ## FUNCTION: Based on the gesture, calls specific editing functions
          
     def callFunction(self,gesture,results): 
-        
+
         ## Different Flow Control Case: Resize performs different functionality based on the cropMode state
         if(gesture == "resize"):
             if(self.cropMode == True):
