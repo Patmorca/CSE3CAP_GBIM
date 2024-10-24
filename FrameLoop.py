@@ -104,8 +104,7 @@ class GestureVision:
                     self.callFunction(MPRecognition.gesture,results)
             
             elif(self.activated == True):
-                if(MPRecognition.gesture != "none"):
-                    self.callFunction(MPRecognition.gesture,results)
+                self.callFunction(MPRecognition.gesture,results)
                            
             resizedFrame = gestureFrame.resize((Style.cameraWidth,Style.cameraHeight),Image.Resampling.LANCZOS)
             displayFrame = CTk.CTkImage(resizedFrame, size= (Style.cameraWidth,Style.cameraHeight))
