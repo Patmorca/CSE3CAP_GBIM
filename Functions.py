@@ -171,7 +171,6 @@ class editFunctions:
             
             self.canvas.itemconfig(self.canvas_image, image=rotated_out)
             self.canvas.imgref = rotated_out
-            self.canvas.imgref = rotated_out
 
     ## INPUT: Nil
     ## FUNCTION: Creates crop overlay image, updates crop-specific references. 
